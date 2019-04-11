@@ -1,5 +1,6 @@
 # shell
-some linux web server useful shell bash script, support some component auto start when linux is restart.
+some linux web server useful shell bash script, some component auto start when linux is restart.
+support all of you component's install path is /usr/local
 
 usage example for zookeeper:
 
