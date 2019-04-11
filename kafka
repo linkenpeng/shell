@@ -1,0 +1,24 @@
+#!/bin/bash
+
+#chkconfig:2345 20 90
+#description:kafka
+#processname:kafka
+
+case $1 in
+          start)
+              /usr/local/kafka/bin/kafka-server-start.sh -daemon /usr/local/kafka/config/server.properties
+              ;;
+          stop)
+               /usr/local/kafka/bin/kafka-server-stop.sh
+              ;;
+          status)
+              jps
+              ;;
+          restart)
+              /usr/local/kafka/bin/kafka-server-stop.sh
+              /usr/local/kafka/bin/kafka-server-start.sh -daemon /usr/local/kafka/config/server.properties
+              ;;
+          *)
+              echo "require start|stop|status|restart"
+              ;;
+esac

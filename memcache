@@ -1,0 +1,49 @@
+#!/bin/sh
+#
+# memcached: MemCached Daemon
+#
+# chkconfig: - 90 25
+# description: MemCached Daemon
+#
+# Source function library.
+
+. /etc/rc.d/init.d/functions
+. /etc/sysconfig/network
+
+start()
+{
+        echo -n $"Starting memcached: "
+        daemon /usr/local/bin/memcached -d -m512 -udaemon -p11211 -c10000 -P/tmp/memcached.pid
+        echo
+}
+
+stop()
+{
+        echo -n $"Shutting down memcached: "
+        killproc memcached
+        echo
+}
+
+[ -f /usr/local/bin/memcached ] || exit 0
+
+# See how we were called.
+case "$1" in
+  start)
+        start
+        ;;
+  stop)
+        stop
+        ;;
+  restart|reload)
+        stop
+        start
+        ;;
+  condrestart)
+        stop
+        start
+        ;;
+  *)
+        echo $"Usage: $0 {start|stop|restart|reload|condrestart}"
+        exit 1
+esac
+exit 0
