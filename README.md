@@ -2,7 +2,7 @@
 some linux web server useful shell bash script, some component auto start when linux is restart.
 support all of you component's install path is /usr/local
 
-usage example for zookeeper:
+usage example for zookeeper on CentOS6:
 
 ```
 cd /etc/init.d/
@@ -24,6 +24,9 @@ component name list:
 - tomcat
 - memcache
 
-
+remove auto start:
+```
+chkconfig zookeeper off
+```
 
 
