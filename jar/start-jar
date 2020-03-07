@@ -1,0 +1,67 @@
+#!/bin/sh
+
+source /etc/profile
+
+dport=9920
+pname=projectname
+pdir=/data/wars/projectname
+logdir=/data/wars/projectname
+sentinelApiPort=8719
+sentinelServer=10.82.30.61:60321
+
+penv=dev
+sleepNum=15
+diamond=img.oss-cn-hangzhou.aliyuncs.com
+
+
+echo "-----------------------------------------------"
+echo "-----------------------------------------------"
+ps -ef | grep java | grep '$pname.jar' | grep -v grep
+
+  echo "kill $id ..."
+  kill $id;
+
+  echo "Check the survival of the process $id ..."
+  forceKill=1
+  while [ $sleepNum -ge 1 ]; do
+    sleep 1
+    ps -p $id >/dev/null 2>&1
+    if [ $? -eq 0 ] ; then
+      echo "服务($id)仍然在运行；剩余检测次数：$sleepNum .... （请不要停止shell）"
+    else
+      echo "服务($id)已停止"
+          forceKill=0
+          break
+    fi
+        sleepNum=`expr $sleepNum - 1`
+  done;
+
+  if [ "$forceKill"x == "1x" ]; then
+    echo "服务进程 $id 任未停止，强制终止进程"
+    kill -9 $id;
+  fi
+
+  echo "kill $id end."
+done;
+
+
+sleep 2
+echo "***********************************************"
+
+rm -f $logdir/java_pid*.hprof*
+
+cd $pdir
+rm -rf $pdir/*$pname.jar
+echo "delete finish"
+
+cp ${pname}_new.jar $pname.jar
+echo "copy file end"
+
+sleep 1
+
+mkdir -p $logdir
+nohup java -jar -DDIAMOND_DOMAINNAME=$diamond -Dspring.profiles.active=$penv -Djava.net.preferIPv4Stack=true -Dcsp.sentinel.api.port=$sentinelApiPort -Dcsp.sentinel.dashboard.server=$s
+entinelServer -Dproject.name=projectname -Xms512m -Xmx512m -XX:+UseParallelGC -XX:+UseParallelOldGC -verbose.gc -XX:+PrintGC -XX:+PrintGCDetails -XX:+PrintGCDateStamps -Xloggc:$logdir/g
+c.log -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=$dport -javaagent:/opt/pinpoint-agent/pinpoint-bootstrap-1.8.2.jar -Dpinpoint.agen
+tId=${pname}_30_59 -Dpinpoint.applicationName=$pname $pname.jar > $logdir/catalina.out 2>&1 &
+echo "start~"

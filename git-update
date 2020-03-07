@@ -1,0 +1,32 @@
+#!/bin/sh
+
+pull_branch() 
+{
+	
+  cd $1
+  echo "Starting pull $1 $2"
+  
+  git pull
+  git checkout $2
+  git pull
+
+  echo "Finish pull $1 $2 \n\n"
+  cd ..
+}
+
+function pull_projects() {  
+  for project in ` ls $1 `  
+  do  
+    if [ -d $1"/"$project ]  
+    then 
+       pull_branch "$project" "$2"
+    fi  
+  done  
+}
+
+
+if [ "$1" != "" ]; then
+  pull_projects ./ $1
+else
+  echo "Usage: git-update.sh branch-name"
+fi
