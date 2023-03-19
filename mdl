@@ -1,0 +1,208 @@
+#!/bin/sh
+
+start_zookeeper()
+{
+  echo 'start zookeeper'
+  #
+  ~/component/zookeeper-3.4.12/bin/zkServer.sh start
+  echo 'start zookeeper success. \n'
+}
+stop_zookeeper()
+{
+	echo 'stop zookeeper'
+	# for id in `ps -ef | grep 'zookeeper' | grep -v grep | awk '{print $2}'`; do kill $id; done;
+	~/component/zookeeper-3.4.12/bin/zkServer.sh stop
+	echo 'stop zookeeper success. \n'
+}
+
+start_redis()
+{
+  config=/usr/local/etc/redis/redis.conf
+  echo "start redis $config"
+  ~/component/shell/redis.sh start
+  echo 'start redis success. \n'
+}
+stop_redis()
+{
+	echo 'stop redis'
+	~/component/shell/redis.sh stop
+	echo 'stop redis success. \n'
+}
+
+
+start_rocketmq()
+{
+  echo 'start rocketmq'
+  nohup sh ~/component/rocketmq/bin/mqnamesrv >/dev/null 2>&1 &
+  nohup sh ~/component/rocketmq/bin/mqbroker -n localhost:9876 autoCreateTopicEnable=true >/dev/null 2>&1 &
+  nohup sh ~/component/rocketmq/bin/mqbroker -n localhost:9876 -c ~/component/rocketmq/conf/broker.conf >/dev/null 2>&1 &
+  echo 'start rocketmq success. \n'
+
+  echo 'start rocketmq-console'
+  nohup java -jar ~/component/rocketmq/console/rocketmq-console-ng-1.0.0.jar --server.port=12581 --rocketmq.config.namesrvAddr=localhost:9876 >/dev/null 2>&1 &
+  echo 'start rocketmq-console success.\n'
+}
+stop_rocketmq()
+{
+	echo 'stop rocketmq'
+	sh ~/component/rocketmq/bin/mqshutdown broker
+	sh ~/component/rocketmq/bin/mqshutdown namesrv
+	echo 'stop rocketmq success. \n'
+
+	echo 'stop rocketmq-console'
+	#for id in `ps -ef | grep 'rocketmq' | grep -v grep | awk '{print $2}'`; do kill -9 $id; done;
+  ps -ef | grep 'rocketmq' | grep -v grep | awk '{print $2}' |xargs kill -9
+	echo 'stop rocketmq-console success.\n'
+}
+
+start_kafka()
+{
+  echo 'start kafka'
+  nohup sh ~/component/kafka_2.12-2.2.0/bin/kafka-server-start.sh ~/component/kafka_2.12-2.2.0/config/server.properties >/dev/null 2>&1 &
+  echo 'start kafka success. \n'
+}
+stop_kafka()
+{
+	echo 'stop kafka'
+	sh ~/component/kafka_2.12-2.2.0/bin/kafka-server-stop.sh
+	echo 'stop kafka success. \n'
+}
+
+start_tomcat()
+{
+  echo 'start tomcat'
+  nohup sh ~/component/apache-tomcat-9.0.27/bin/startup.sh  >/dev/null 2>&1 &
+  echo 'start tomcat success. \n'
+}
+stop_tomcat()
+{
+	echo 'stop tomcat'
+	nohup sh ~/component/apache-tomcat-9.0.27/bin/shutdown.sh  >/dev/null 2>&1 &
+	echo 'stop tomcat success. \n'
+}
+
+start_rabbitmq()
+{
+  echo 'start rabbitmq'
+  brew services start rabbitmq
+  echo 'start rabbitmq success. \n'
+}
+stop_rabbitmq()
+{
+	echo 'stop rabbitmq'
+	brew services stop rabbitmq
+	echo 'stop rabbitmq success. \n'
+}
+
+start_mongodb()
+{
+  brew services start mongodb-community
+}
+stop_mongodb()
+{
+  echo 'stop mongodb'
+  brew services stop mongodb-community
+  echo 'stop mongodb success. \n'
+}
+
+start_elasticsearch()
+{
+  ~/component/elasticsearch-7.11.2/bin/elasticsearch -d -p 100
+}
+stop_elasticsearch()
+{
+  echo 'stop elasticsearch'
+  pkill -F 100
+  echo 'stop elasticsearch success. \n'
+}
+
+start_nacos()
+{
+  ~/project/java/nacos/distribution/target/nacos-server-2.0.3/nacos/bin/startup.sh -m standalone
+}
+stop_nacos()
+{
+  echo 'stop nacos'
+  ~/project/java/nacos/distribution/target/nacos-server-2.0.3/nacos/bin/shutdown.sh
+  echo 'stop nacos success. \n'
+}
+
+start_sentinel()
+{
+  nohup java -Dserver.port=8080 \
+  -Dcsp.sentinel.dashboard.server=localhost:8080 \
+  -Dproject.name=sentinel-dashboard \
+  -jar ~/component/sentinel-dashboard/sentinel-dashboard.jar
+}
+stop_sentinel()
+{
+  echo 'stop sentinel'
+  ps -ef | grep 'sentinel' | grep -v grep | awk '{print $2}' |xargs kill -9
+  echo 'stop rsentinel success.\n'
+}
+
+
+start_php()
+{
+  brew services start php@7.3
+}
+stop_php()
+{
+  brew services stop php@7.3
+}
+
+
+start_mysql()
+{
+  mysql.server start
+}
+stop_mysql()
+{
+  mysql.server stop
+}
+
+
+start_nginx()
+{
+  config=/usr/local/etc/nginx/nginx.conf
+  echo "start nginx $config"
+  sudo nginx -c $config
+  echo "start nginx success"
+}
+stop_nginx()
+{
+  echo "stop nginx"
+  sudo nginx -s stop
+  echo "stop nginx success"
+}
+
+middlewares=("zookeeper" "redis" "rocketmq" "kafka" "tomcat" "rabbitmq" "mongodb" "elasticsearch" "nacos" "sentinel" "php" "mysql" "nginx")
+
+if [ "$1" = "start" ]; then
+    if [[ "${middlewares[*]}" =~ ${2} ]]; then
+          start_$2
+    else
+        echo $"Usage: $0 $1"
+        for mdl in ${middlewares[@]}
+           do
+              echo "$mdl "
+           done
+        exit 1
+    fi
+fi
+
+if [ "$1" = "stop" ]; then
+    if [[ "${middlewares[*]}" =~ ${2} ]]; then
+          stop_$2
+    else
+        echo $"Usage: $0 $1"
+        for mdl in ${middlewares[@]}
+           do
+              echo "$mdl "
+           done
+        exit 1
+    fi
+fi
+
+
+exit 0
