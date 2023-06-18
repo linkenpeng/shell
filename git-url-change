@@ -1,0 +1,28 @@
+#!/bin/sh
+
+change_url() 
+{
+  echo "Change project config: $1 origin-url: $2 to: $3"
+  
+  sed -i s!$2!$3!g $1
+
+  echo -e "Finish project: $1 origin-url: $2 to: $3 \n\n"
+}
+
+change_projects() {
+  for project in ` ls $1 `  
+  do  
+    if [ -d $1"/"$project ]  
+    then 
+       change_url "$project/.git/config" "$2" "$3"
+    fi  
+  done
+}
+
+# origin-url-prefix: 原来的git地址前缀
+# new-url-prefix: 修改后的地址前缀
+if [ "$1" != "" ]; then
+  change_projects ./ $1 $2
+else
+  echo "Usage: git-url-change.sh origin-url-prefix new-url-prefix"
+fi
