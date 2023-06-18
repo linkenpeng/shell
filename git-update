@@ -14,7 +14,7 @@ pull_branch()
   cd ..
 }
 
-function pull_projects() {  
+pull_projects() {
   for project in ` ls $1 `  
   do  
     if [ -d $1"/"$project ]  
