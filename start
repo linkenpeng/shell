@@ -1,0 +1,148 @@
+#!/bin/sh
+
+start_zookeeper() 
+{
+	echo 'start zookeeper'
+  # 
+	~/component/zookeeper-3.4.12/bin/zkServer.sh start
+	echo 'start zookeeper success. \n'
+}
+
+start_redis() 
+{
+	echo 'start redis'
+	~/component/shell/redis.sh start
+	echo 'start redis success. \n'
+}
+
+start_rocketmq() 
+{
+	echo 'start rocketmq'
+	nohup sh ~/component/rocketmq/bin/mqnamesrv >/dev/null 2>&1 &
+	nohup sh ~/component/rocketmq/bin/mqbroker -n localhost:9876 autoCreateTopicEnable=true >/dev/null 2>&1 &
+	nohup sh ~/component/rocketmq/bin/mqbroker -n localhost:9876 -c ~/component/rocketmq/conf/broker.conf >/dev/null 2>&1 &
+	echo 'start rocketmq success. \n'
+
+  echo 'start rocketmq-console'
+	nohup java -jar ~/component/rocketmq/console/rocketmq-console-ng-1.0.0.jar --server.port=12581 --rocketmq.config.namesrvAddr=localhost:9876 >/dev/null 2>&1 &
+	echo 'start rocketmq-console success.\n'
+}
+
+
+start_kafka()
+{
+	echo 'start kafka'
+	nohup sh ~/component/kafka_2.12-2.2.0/bin/kafka-server-start.sh ~/component/kafka_2.12-2.2.0/config/server.properties >/dev/null 2>&1 &
+	echo 'start kafka success. \n'
+}
+
+start_tomcat()
+{
+	echo 'start tomcat'
+	nohup sh ~/component/apache-tomcat-9.0.27/bin/startup.sh  >/dev/null 2>&1 &
+	echo 'start tomcat success. \n'
+}
+
+start_rabbitmq()
+{
+	echo 'start rabbitmq'
+	brew services start rabbitmq
+	echo 'start rabbitmq success. \n'
+}
+
+start_mongodb()
+{
+  brew services start mongodb-community
+}
+
+start_elasticsearch()
+{
+  ~/component/elasticsearch-7.11.2/bin/elasticsearch -d -p 100
+}
+
+start_nacos()
+{
+  ~/project/java/nacos/distribution/target/nacos-server-2.0.3/nacos/bin/startup.sh -m standalone
+}
+
+start_sentinel() 
+{
+  nohup java -Dserver.port=8080 \
+  -Dcsp.sentinel.dashboard.server=localhost:8080 \
+  -Dproject.name=sentinel-dashboard \
+  -jar ~/component/sentinel-dashboard/sentinel-dashboard.jar
+}
+
+start_php() 
+{
+  brew services start php@7.3
+}
+
+start_mysql() 
+{
+  mysql.server start
+}
+
+start_nginx() 
+{
+  sudo nginx -c /usr/local/etc/nginx/nginx.conf
+}
+
+
+
+case "$1" in
+  zookeeper)
+        start_zookeeper
+        ;;
+  redis)
+        start_redis
+        ;;
+  rocketmq)
+        start_rocketmq
+        ;;
+  kafka)
+        start_kafka
+        ;;
+  tomcat)
+        start_tomcat
+        ;;
+  rabbitmq)
+        start_rabbitmq
+        ;;
+  mongodb)
+        start_mongodb
+        ;;
+  elasticsearch)
+        start_elasticsearch
+        ;;
+  nacos)
+        start_nacos
+        ;;
+  sentinel)
+        start_sentinel
+        ;;
+  php)
+        start_php
+        ;;
+  mysql)
+        start_mysql
+        ;;
+  nginx)
+        start_nginx
+        ;;
+  all)
+        start_zookeeper
+        start_redis
+        start_rocketmq
+        start_kafka
+        start_tomcat
+        start_rabbitmq
+        start_mongodb
+        start_elasticsearch
+        start_nacos
+        ;;
+  *)
+        echo $"Usage: $0 {zookeeper|redis|rocketmq|kafka|tomcat|rabbitmq|mongodb|elasticsearch|start_nacos|all}"
+        exit 1
+esac
+exit 0
