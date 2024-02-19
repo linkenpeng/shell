@@ -1,0 +1,9 @@
+#!/bin/bash
+
+idList=(123)
+for i in ${idList[@]}
+do
+  fileName=`grep -l  "abc\=\"$i\"" ./update/* `
+  mv $fileName ./tmp/
+
+done
