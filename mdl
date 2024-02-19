@@ -178,9 +178,10 @@ stop_nginx()
 
 middlewares=("zookeeper" "redis" "rocketmq" "kafka" "tomcat" "rabbitmq" "mongodb" "elasticsearch" "nacos" "sentinel" "php" "mysql" "nginx")
 
-if [ "$1" = "start" ]; then
+# ./run start redis
+if [ "$1" = "start" -o "$1" = "stop" ]; then
     if [[ "${middlewares[*]}" =~ ${2} ]]; then
-          start_$2
+          $1_$2
     else
         echo $"Usage: $0 $1"
         for mdl in ${middlewares[@]}
@@ -189,19 +190,8 @@ if [ "$1" = "start" ]; then
            done
         exit 1
     fi
-fi
-
-if [ "$1" = "stop" ]; then
-    if [[ "${middlewares[*]}" =~ ${2} ]]; then
-          stop_$2
-    else
-        echo $"Usage: $0 $1"
-        for mdl in ${middlewares[@]}
-           do
-              echo "$mdl "
-           done
-        exit 1
-    fi
+  else
+    echo $"Usage: $0 [start|stop] server"
 fi
 
 
