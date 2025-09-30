@@ -15,8 +15,23 @@ stop_zookeeper()
 	echo 'stop zookeeper success. \n'
 }
 
+start_nexus()
+{
+  echo 'start nexus-3.67.0'
+  #
+  ~/component/nexus-3.67.0-03-java8-mac/nexus-3.67.0-03/bin/nexus start
+  echo 'start nexus success. \n'
+}
+stop_nexus()
+{
+  echo 'stop nexus-3.67.0'
+  ~/component/nexus-3.67.0-03-java8-mac/nexus-3.67.0-03/bin/nexus stop
+  echo 'stop nexus success. \n'
+}
+
 start_redis()
 {
+  # 6371
   config=/usr/local/etc/redis/redis.conf
   echo "start redis $config"
   ~/component/shell/redis.sh start
@@ -55,6 +70,19 @@ stop_rocketmq()
 	echo 'stop rocketmq-console success.\n'
 }
 
+start_rabbitmq()
+{
+  echo 'start rabbitmq'
+  brew services start rabbitmq
+  echo 'start rabbitmq success. \n'
+}
+stop_rabbitmq()
+{
+  echo 'stop rabbitmq'
+  brew services stop rabbitmq
+  echo 'stop rabbitmq success. \n'
+}
+
 start_kafka()
 {
   echo 'start kafka'
@@ -81,28 +109,18 @@ stop_tomcat()
 	echo 'stop tomcat success. \n'
 }
 
-start_rabbitmq()
-{
-  echo 'start rabbitmq'
-  brew services start rabbitmq
-  echo 'start rabbitmq success. \n'
-}
-stop_rabbitmq()
-{
-	echo 'stop rabbitmq'
-	brew services stop rabbitmq
-	echo 'stop rabbitmq success. \n'
-}
 
 start_mongodb()
 {
-  brew services start mongodb-community
+  echo 'stop mongod'
+  nohup mongod --config /usr/local/etc/mongod.conf  >/dev/null 2>&1 &
+  echo 'stop mongod success.\n'
 }
 stop_mongodb()
 {
-  echo 'stop mongodb'
-  brew services stop mongodb-community
-  echo 'stop mongodb success. \n'
+  echo 'stop mongod'
+  ps -ef | grep 'mongod' | grep -v grep | awk '{print $2}' |xargs kill -9
+  echo 'stop mongod success.\n'
 }
 
 start_elasticsearch()
@@ -114,6 +132,20 @@ stop_elasticsearch()
   echo 'stop elasticsearch'
   pkill -F 100
   echo 'stop elasticsearch success. \n'
+}
+
+start_hbase()
+{
+  # 16010
+  echo 'start hbase...'
+  ~/component/hbase-2.6.3/bin/start-hbase.sh
+  echo 'start hbase success.\n'
+}
+stop_hbase()
+{
+  echo 'stop hbase...'
+  ~/component/hbase-2.6.3/bin/stop-hbase.sh
+  echo 'stop hbase success.\n'
 }
 
 start_nacos()
@@ -176,7 +208,8 @@ stop_nginx()
   echo "stop nginx success"
 }
 
-middlewares=("zookeeper" "redis" "rocketmq" "kafka" "tomcat" "rabbitmq" "mongodb" "elasticsearch" "nacos" "sentinel" "php" "mysql" "nginx")
+middlewares=("zookeeper" "nexus" "redis" "rocketmq" "kafka" "tomcat" "rabbitmq"
+"mongodb" "elasticsearch" "nacos" "sentinel" "php" "mysql" "nginx" "hbase")
 
 # ./run start redis
 if [ "$1" = "start" -o "$1" = "stop" ]; then
